@@ -1,0 +1,9 @@
+# Local tool state — never commit
+.gstack/
+# Node
+node_modules/
+# Env / secrets
+.env
+.env.*
+# Lambda deploy artifacts
+*.zip
