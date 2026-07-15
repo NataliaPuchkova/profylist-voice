@@ -51,10 +51,13 @@
   ],
 
   "voice": {
-    "provider": "cartesia",
-    "model": "sonic-2",
-    "voiceId": "REPLACE_WITH_CARTESIA_VOICE_ID",
-    "speed": 1.0
+    "provider": "11labs",
+    "model": "eleven_flash_v2_5",
+    "voiceId": "REPLACE_WITH_VOICE_ID",
+    "stability": 0.5,
+    "similarityBoost": 0.75,
+    "useSpeakerBoost": true,
+    "optimizeStreamingLatency": 3
   },
 
   "transcriber": {

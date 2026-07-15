@@ -19,13 +19,15 @@ if [ -z "$VAPI_KEY" ]; then
   echo "Error: set VAPI_KEY environment variable (your Vapi private key)"
   exit 1
 fi
-if [ -z "$CARTESIA_VOICE_ID" ]; then
-  echo "Error: set CARTESIA_VOICE_ID (from Vapi's voice library — Cartesia Sonic-2 voice)"
+VOICE_ID="${VOICE_ID:-$ELEVENLABS_VOICE_ID}"
+VOICE_ID="${VOICE_ID:-$CARTESIA_VOICE_ID}"
+if [ -z "$VOICE_ID" ]; then
+  echo "Error: set VOICE_ID (or ELEVENLABS_VOICE_ID / CARTESIA_VOICE_ID) — grab it from Vapi's voice library"
   exit 1
 fi
 
 CONFIG_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/vapi/assistant.json"
-BODY=$(sed "s/REPLACE_WITH_CARTESIA_VOICE_ID/$CARTESIA_VOICE_ID/g" "$CONFIG_FILE")
+BODY=$(sed "s/REPLACE_WITH_VOICE_ID/$VOICE_ID/g" "$CONFIG_FILE")
 
 echo "→ Creating assistant on Vapi…"
 RESP=$(curl -sS -X POST https://api.vapi.ai/assistant \
