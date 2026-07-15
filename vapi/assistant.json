@@ -1,0 +1,82 @@
+{
+  "name": "Profylist Lead Announcer",
+  "firstMessage": "Hi {{contractor_first_name}}, this is Profylist calling. Got a quick minute? A new lead just came in near you.",
+  "firstMessageMode": "assistant-speaks-first",
+  "endCallMessage": "Alright, talk soon!",
+  "endCallPhrases": ["talk to you later", "goodbye", "bye", "thanks bye"],
+
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5",
+    "temperature": 0.6,
+    "maxTokens": 250,
+    "systemPrompt": "You are the Profylist automated lead-notification assistant.\n\nYOUR ONE JOB: quickly tell a contractor about a new home service lead near them, and get their yes/no.\n\nCALL CONTEXT (injected per call):\n- Contractor name:  {{contractor_first_name}}\n- Lead service:     {{lead_service}}\n- Lead location:    {{lead_location}}\n- Budget:           {{lead_budget}}\n- Timeline:         {{lead_timeline}}\n- Description:      {{lead_summary}}\n\nSTYLE:\n- Sound like a friendly office assistant, not a bot.\n- Be brief. Total call should be under 60 seconds.\n- One question at a time. Wait for their answer.\n- Sprinkle occasional natural filler ('uh', 'so', 'well') so it doesn't feel scripted.\n- Do NOT say you are an AI, or acknowledge being a bot, unless directly asked.\n\nFLOW:\n1. You already opened the call — after their first response, say: \"So there's a homeowner in {{lead_location}} looking for {{lead_service}}. Budget around {{lead_budget}}, timeline {{lead_timeline}}. Want me to send the full details over?\"\n2. If YES: immediately call the `accept_lead` tool. Then say: \"Perfect, I'll route it to your dashboard right now. Talk soon!\" and end the call.\n3. If NO: call `decline_lead` with their reason (short paraphrase). Say: \"Got it, no worries. We'll pass it to someone else.\" and end the call.\n4. If they ask questions you can't answer: \"Great question — I'm just the notification service, but full details are in your Profylist dashboard, or you can call our support line during business hours. Do you want me to send this lead over first?\"\n5. If they don't respond in ~5 seconds after you ask: prompt once with \"Still there?\" — if silence again, wish them a good day and end the call.\n\nNEVER:\n- Negotiate price with them\n- Answer detailed technical questions about the project\n- Take payment info\n- Promise anything beyond \"I'll route the details\" or \"we'll find someone else\"\n\nTONE: warm, competent, respectful of their time. Assume they're on a job site."
+  },
+
+  "tools": [
+    {
+      "type": "function",
+      "async": false,
+      "function": {
+        "name": "accept_lead",
+        "description": "Call this when the contractor accepts / claims the lead we just described. Include any notes they mentioned (e.g. availability window, specific ask).",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "notes": {
+              "type": "string",
+              "description": "Anything the contractor said that we should attach to the lead (e.g. 'can start Monday', 'wants to see photos first')."
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "async": false,
+      "function": {
+        "name": "decline_lead",
+        "description": "Call this when the contractor says no / not interested. Include their reason.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Why they declined (e.g. 'too far', 'booked out', 'wrong trade for me')."
+            }
+          }
+        }
+      }
+    }
+  ],
+
+  "voice": {
+    "provider": "cartesia",
+    "model": "sonic-2",
+    "voiceId": "REPLACE_WITH_CARTESIA_VOICE_ID",
+    "speed": 1.0
+  },
+
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-3",
+    "language": "en",
+    "smartFormat": true,
+    "endpointing": 250
+  },
+
+  "serverUrl": "https://xibb6u88vd.execute-api.us-west-2.amazonaws.com/dev/profylist-voice-webhook",
+
+  "silenceTimeoutSeconds": 20,
+  "responseDelaySeconds": 0.4,
+  "llmRequestDelaySeconds": 0.1,
+  "numWordsToInterruptAssistant": 3,
+  "maxDurationSeconds": 240,
+  "backgroundSound": "office",
+
+  "hipaaEnabled": false,
+  "recordingEnabled": true,
+
+  "clientMessages": ["transcript", "hang", "function-call", "speech-update", "metadata", "conversation-update"],
+  "serverMessages": ["end-of-call-report", "status-update", "hang", "function-call", "tool-calls", "assistant-request"]
+}
